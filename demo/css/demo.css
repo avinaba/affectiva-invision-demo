@@ -62,13 +62,26 @@ h3 {
     margin-top: 15px;
 }
 
+#invision-svg-wrapper {
+    margin-top: 15px;
+}
+
 #svg-container {
     margin-top: 15px;
+}
+
+#invision-svg-container{
+  margin-top: 15px;
 }
 
 #svg-curve {
     width: 720px;
     height: 300px;
+}
+
+#invision-svg-curve{
+  width: 720px;
+  height: 300px;
 }
 
 line.cursor {

@@ -11,8 +11,17 @@
 
     <!-- demo files -->
     <script src="demo/js/run_demo.js"></script>
+
     <script src="https://download.affectiva.com/js/3.2/affdex.js"></script>
-    
+    <!--Need to extend the affectiva js SDK CameraDetector and pass a network-stream-->
+    <!--Apparently there're a bunch of shitty layers before I can access it -->
+    <!--Getting some blob error of "Ready" state of camera...-->
+    <!--
+    <script src="demo/js/affdex/affdex-3-2.js"></script>
+    <script src="nulladapter-1.4.0.js"></script>
+    <script src="nullaffdex-worker.js"></script>
+  -->
+
     <a href="https://github.com/affectiva/youtube-demo"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://camo.githubusercontent.com/c6286ade715e9bea433b4705870de482a654f78a/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f6c6566745f77686974655f6666666666662e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png"></a>
 </head>
 
@@ -23,6 +32,50 @@
     <div class="row">
         <div class="col-md-12 text-center">
             <div id="facevideo-node"></div>
+        </div>
+    </div>
+    <div class="row" id="invision-container">
+        <div class="col-md-12 text-center">
+          <div class="form-group">
+              <div class="input-group">
+                  <input type="text" class="form-control" id="invision-start-form" placeholder="Enter a URL of invision prototype" value="https://invis.io/RJB43JPNQ" autofocus>
+                  <span class="input-group-btn">
+                      <button id="invision-btn-start" class="btn btn-primary" type="button">Load Invision</button>
+                  </span>
+              </div>
+          </div>
+          <div id="invision-space"> <!-- Load invision iframe here -->
+          </div>
+          <div class="input-group">
+            <span class="input-group-btn">
+              <!-- Manual d3 data recording Start-->
+              <button id="invision-record-start" class="btn btn-primary" type="button">Start recording</button>
+              <!-- Manual d3 data recording Stop-->
+              <button id="invision-record-stop" class="btn btn-primary" type="button">Stop recording</button>
+              <!-- Manual affdex reset -->
+              <button id="affdex-reset" class="btn btn-primary" type="button">RESET</button>
+            </span>
+          </div>
+            <div id="invision-player" style="pointer-events: none"></div>
+            <div id="invision-svg-container">
+                <div class="row">
+                    <div id="invision-ul-wrapper" class="col-md-2">
+                        <ul id="invision-nav">
+                        <li class="all buttons all-face all-box box-squared" id="all"><span>Show all</span></li>
+                        <li class="joy buttons smiling-face joy-box box-squared" id="joy" onClick="JSSDKDemo.responses(this.id)"><span>Joy</span></li>
+                        <li class="anger buttons angry-face anger-box box-squared" id="anger" onClick="JSSDKDemo.responses(this.id)"><span>Anger</span></li>
+                        <li class="disgust buttons disgusted-face disgust-box box-squared" id="disgust"  onClick="JSSDKDemo.responses(this.id)"><span>Disgust</span></li>
+                        <li class="contempt buttons contempt-face contempt-box box-squared" id="contempt"  onClick="JSSDKDemo.responses(this.id)"><span>Contempt</span></li>
+                        <li class="surprise buttons surprise-face surprise-box box-squared" id="surprise"  onClick="JSSDKDemo.responses(this.id)"><span>Surprise</span></li>
+                        </ul>
+                    </div>
+                    <div id="invision-svg-wrapper" class="col-md-8 text-center">
+                        <svg id="invision-svg-curve"></svg>
+                    </div>
+
+
+                </div>
+            </div>
         </div>
     </div>
     <div id="messages" class="row">
@@ -47,19 +100,19 @@
                 <p>This demo uses Affectiva's JavaScript SDK to analyze your emotions as you watch a YouTube video. Before starting this demo, please make sure that your face is centered in the screen and the room lighting is adequate.</p>
                 <p><strong>Instructions:</strong></p>
                 <p>Search a YouTube video by keyword or enter its URL, and with your webcam turned on, you'll be able to see your emotions both during the video and during playback:</p>
-                
+
                 <div class="form-group">
                     <div class="input-group">
-                        <input type="text" class="form-control" id="start-form" placeholder="Enter a URL or search YouTube here..." autofocus>
+                        <input type="text" class="form-control" id="start-form" placeholder="Enter a URL or search YouTube here...">
                         <span class="input-group-btn">
                             <button id="btn-start" class="btn btn-primary" type="button">Start</button>
                         </span>
                     </div>
                 </div>
             </div>
-            
+
             <div class="list-group row" id="search-results"></div>
-            
+
             <div class="well">
                 <p>Here are some selected videos to get you started:</p>
                 <div class="row">
@@ -73,10 +126,10 @@
                     <div class="col-md-4 starter-container" id="example-5"></div>
                 </div>
             </div>
-            
+
         </div>
     </div>
-    
+
 </div>
 
 <div class="row" id="video-container">
@@ -86,12 +139,14 @@
             <div class="row">
                 <div id="ul-wrapper" class="col-md-2">
                     <ul id="nav">
+                    <!--- Debug 00: for id conflict : No-effect (my svg paths are still stuck with no time translation)
                     <li class="all buttons all-face all-box box-squared" id="all"><span>Show all</span></li>
                     <li class="joy buttons smiling-face joy-box box-squared" id="joy" onClick="JSSDKDemo.responses(this.id)"><span>Joy</span></li>
                     <li class="anger buttons angry-face anger-box box-squared" id="anger" onClick="JSSDKDemo.responses(this.id)"><span>Anger</span></li>
                     <li class="disgust buttons disgusted-face disgust-box box-squared" id="disgust"  onClick="JSSDKDemo.responses(this.id)"><span>Disgust</span></li>
                     <li class="contempt buttons contempt-face contempt-box box-squared" id="contempt"  onClick="JSSDKDemo.responses(this.id)"><span>Contempt</span></li>
                     <li class="surprise buttons surprise-face surprise-box box-squared" id="surprise"  onClick="JSSDKDemo.responses(this.id)"><span>Surprise</span></li>
+                    <!-->
                     </ul>
                 </div>
                 <div id="svg-wrapper" class="col-md-8 text-center">
@@ -110,6 +165,9 @@
         </div>
     </div>
 </div>
+
+
+
 
 </body>
 </html>
